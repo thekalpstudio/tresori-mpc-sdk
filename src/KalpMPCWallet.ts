@@ -7,7 +7,7 @@ import { sendBulkTransfer } from './transaction/bulk';
 import { KalpRelay } from './relay';
 import { rpcCall, setRpcUrl } from './rpc';
 import { LocalStorageKeyStore, InMemoryKeyStore } from './storage';
-import { DEFAULT_API_BASE_URL, FACILITATOR_BY_CHAIN, RELAYER_BY_CHAIN } from './constants';
+import { DEFAULT_API_BASE_URL, FACILITATOR_BY_CHAIN, RELAYER_BY_CHAIN, CHAIN_API_MAPPING } from './constants';
 import type {
   KalpMPCConfig,
   KeyStore,
@@ -22,6 +22,8 @@ import type {
   ECDSASignature,
   ContractCallParams,
   SignTypedDataFunction,
+  SendEmailOtpResult,
+  VerifyEmailOtpResult,
 } from './types';
 
 export class KalpMPCWallet {
@@ -280,6 +282,162 @@ export class KalpMPCWallet {
       apiKey: this.apiKey,
       rpcUrl: this.rpcUrl,
     });
+  }
+
+  // ─── Email OTP Authentication ──────────────────────────────────────────
+
+  private getChainApiParams(): { blockchain: string; network: string } {
+    return CHAIN_API_MAPPING[this.chainId] || { blockchain: 'ETH', network: 'SEPOLIA' };
+  }
+
+  /**
+   * Send an email OTP for wallet login/creation.
+   * The API will send a 4-digit OTP to the provided email address.
+   */
+  async sendEmailOtp(email: string): Promise<SendEmailOtpResult> {
+    const { blockchain, network } = this.getChainApiParams();
+
+    // First check if MPC wallet exists for this email
+    let walletExists = false;
+    try {
+      const checkRes = await fetch(`${this.apiBaseUrl}/auth/is-mpc-exist`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apiKey: this.apiKey },
+        body: JSON.stringify({ blockchain, network, walletIdentifier: email }),
+      });
+      if (checkRes.ok) {
+        const checkData = await checkRes.json();
+        walletExists = !!checkData?.result?.isMPCExists;
+      }
+    } catch {
+      // If check fails, proceed with send anyway
+    }
+
+    const payload: Record<string, string> = {
+      email,
+      userId: email,
+      blockchain,
+      network,
+      walletType: 'MPC',
+    };
+    if (walletExists) {
+      payload.type = 'verify';
+    }
+
+    const res = await fetch(`${this.apiBaseUrl}/auth/email/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apiKey: this.apiKey },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      // Error code 101021 means wallet doesn't exist — retry without type
+      if (errData?.customErrorNumber === 101021) {
+        delete payload.type;
+        const retryRes = await fetch(`${this.apiBaseUrl}/auth/email/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', apiKey: this.apiKey },
+          body: JSON.stringify(payload),
+        });
+        if (!retryRes.ok) {
+          const retryErr = await retryRes.json().catch(() => ({}));
+          throw new Error(retryErr?.message || `Failed to send OTP (${retryRes.status})`);
+        }
+        const retryData = await retryRes.json();
+        return {
+          success: true,
+          message: retryData?.result?.status?.message || 'OTP sent',
+          isNewWallet: true,
+        };
+      }
+      throw new Error(errData?.message || `Failed to send OTP (${res.status})`);
+    }
+
+    const data = await res.json();
+    return {
+      success: true,
+      message: data?.result?.status?.message || 'OTP sent',
+      isNewWallet: !walletExists,
+    };
+  }
+
+  /**
+   * Verify email OTP. If wallet exists, loads wallet keys.
+   * If wallet is new, runs DKG to create the wallet.
+   * Returns the wallet info on success.
+   */
+  async verifyEmailOtp(email: string, otp: string): Promise<WalletInfo> {
+    const { blockchain, network } = this.getChainApiParams();
+
+    // Check if wallet already exists
+    let walletExists = false;
+    try {
+      const checkRes = await fetch(`${this.apiBaseUrl}/auth/is-mpc-exist`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apiKey: this.apiKey },
+        body: JSON.stringify({ blockchain, network, walletIdentifier: email }),
+      });
+      if (checkRes.ok) {
+        const checkData = await checkRes.json();
+        walletExists = !!checkData?.result?.isMPCExists;
+      }
+    } catch {
+      // Continue with verify
+    }
+
+    const payload: Record<string, string> = {
+      email,
+      otp,
+      userId: email,
+      blockchain,
+      network,
+      walletType: 'MPC',
+    };
+    if (walletExists) {
+      payload.type = 'verify';
+    }
+
+    const res = await fetch(`${this.apiBaseUrl}/auth/email/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apiKey: this.apiKey },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData?.message || `OTP verification failed (${res.status})`);
+    }
+
+    const data = await res.json();
+    const result = data?.result?.status;
+
+    // If server returns wallet address, wallet already exists — load it
+    if (result?.walletAddress) {
+      const address = result.walletAddress;
+      // Store wallet details
+      await this.keyStore.set('address', address);
+      if (result.sessionId) {
+        await this.keyStore.set('sessionId', result.sessionId);
+      }
+      if (result.userShard) {
+        await this.keyStore.set('clientShare1', result.userShard);
+      }
+
+      this._address = address;
+      this._sessionId = result.sessionId || await this.keyStore.get('sessionId');
+      this._clientShare = result.userShard || await this.keyStore.get('clientShare1');
+      this._initialized = !!(this._clientShare && this._sessionId && this._address);
+
+      return {
+        address,
+        sessionId: this._sessionId || '',
+        chainId: this.chainId,
+      };
+    }
+
+    // Wallet doesn't exist — run DKG to create it
+    return this.createWallet(email);
   }
 
   // ─── Utilities ─────────────────────────────────────────────────────────────

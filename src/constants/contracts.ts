@@ -31,7 +31,25 @@ export const DEFAULT_FEE_RECIPIENT = '0x663046eAd467db63FFCB3974e187e6C8F60D639B
 export const DEFAULT_SPONSOR_ADDRESS = '0xd22fb5ce742c5b293e34070d9f93a50590e7cc41';
 
 // Default relay API URL
-export const DEFAULT_RELAY_API_URL = 'https://alpha-wallet-api.kalp.studio/relayer/relay';
+export const DEFAULT_RELAY_API_URL = 'https://wallet-api.kalp.studio/relayer/relay';
 
 // Default API base URL
-export const DEFAULT_API_BASE_URL = 'https://alpha-wallet-api.kalp.studio';
+export const DEFAULT_API_BASE_URL = 'https://wallet-api.kalp.studio';
+
+// Chain ID → blockchain/network mapping for auth API
+export const CHAIN_API_MAPPING: Record<number, { blockchain: string; network: string }> = {
+  80002:    { blockchain: 'POLY', network: 'AMOY' },
+  137:      { blockchain: 'POLY', network: 'MAINNET' },
+  84532:    { blockchain: 'BASE', network: 'SEPOLIA' },
+  8453:     { blockchain: 'BASE', network: 'MAINNET' },
+  11155111: { blockchain: 'ETH',  network: 'SEPOLIA' },
+  1:        { blockchain: 'ETH',  network: 'MAINNET' },
+  421614:   { blockchain: 'ARB',  network: 'SEPOLIA' },
+  42161:    { blockchain: 'ARB',  network: 'MAINNET' },
+  43113:    { blockchain: 'AVAX', network: 'FUJI' },
+  43114:    { blockchain: 'AVAX', network: 'MAINNET' },
+  97:       { blockchain: 'BSC',  network: 'TESTNET' },
+  56:       { blockchain: 'BSC',  network: 'MAINNET' },
+  11155420: { blockchain: 'OP',   network: 'SEPOLIA' },
+  10:       { blockchain: 'OP',   network: 'MAINNET' },
+};

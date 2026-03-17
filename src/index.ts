@@ -66,4 +66,6 @@ export type {
   SignTypedDataFunction,
   ContractCallParams,
   ChainInfo,
+  SendEmailOtpResult,
+  VerifyEmailOtpResult,
 } from './types';

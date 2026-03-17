@@ -163,6 +163,21 @@ export interface ContractCallParams {
   value?: string;
 }
 
+// ─── Email OTP Authentication ──────────────────────────────────────────
+
+export interface SendEmailOtpResult {
+  success: boolean;
+  message?: string;
+  isNewWallet: boolean;
+}
+
+export interface VerifyEmailOtpResult {
+  success: boolean;
+  walletAddress?: string;
+  isNewWallet: boolean;
+  message?: string;
+}
+
 // ─── Chain Config ───────────────────────────────────────────────────────────
 
 export interface ChainInfo {
