@@ -411,31 +411,36 @@ export class KalpMPCWallet {
 
     const data = await res.json();
     const result = data?.result?.status;
+    const parentResult = data?.result;
 
     // If server returns wallet address, wallet already exists — load it
-    if (result?.walletAddress) {
-      const address = result.walletAddress;
+    const walletAddress = result?.walletAddress || parentResult?.walletAddress;
+    if (walletAddress) {
+      // Look for sessionId at multiple paths and field names
+      const sessionId =
+        result?.sessionId || result?.mpc_session_id || result?.session_id ||
+        parentResult?.sessionId || parentResult?.mpc_session_id || parentResult?.session_id;
+      // Look for userShard/clientShare at multiple paths
+      const userShard =
+        result?.userShard || result?.user_shard || result?.clientShare1 ||
+        parentResult?.userShard || parentResult?.user_shard;
+
       // Store wallet details
-      await this.keyStore.set('address', address);
-      if (result.sessionId) {
-        await this.keyStore.set('sessionId', result.sessionId);
+      await this.keyStore.set('address', walletAddress);
+      if (sessionId) {
+        await this.keyStore.set('sessionId', sessionId);
       }
-      if (result.userShard) {
-        await this.keyStore.set('clientShare1', result.userShard);
+      if (userShard) {
+        await this.keyStore.set('clientShare1', userShard);
       }
 
-      this._address = address;
-      this._sessionId = result.sessionId || await this.keyStore.get('sessionId');
-      this._clientShare = result.userShard || await this.keyStore.get('clientShare1');
+      this._address = walletAddress;
+      this._sessionId = sessionId || await this.keyStore.get('sessionId');
+      this._clientShare = userShard || await this.keyStore.get('clientShare1');
       this._initialized = !!(this._clientShare && this._sessionId && this._address);
 
-      // If sessionId is missing (e.g. cleared storage), re-run DKG to establish a new signing session
-      if (!this._initialized) {
-        return this.createWallet(email);
-      }
-
       return {
-        address,
+        address: walletAddress,
         sessionId: this._sessionId || '',
         chainId: this.chainId,
       };
@@ -496,12 +501,9 @@ export class KalpMPCWallet {
   }
 
   async disconnect(): Promise<void> {
+    // Only clear the sensitive key material; keep sessionId and address
+    // so the wallet can be recovered via OTP (which returns userShard)
     await this.keyStore.remove('clientShare1');
-    await this.keyStore.remove('sessionId');
-    await this.keyStore.remove('address');
-    await this.keyStore.remove('chainId');
-    this._address = null;
-    this._sessionId = null;
     this._clientShare = null;
     this._initialized = false;
   }
