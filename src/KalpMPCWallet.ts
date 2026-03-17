@@ -501,9 +501,12 @@ export class KalpMPCWallet {
   }
 
   async disconnect(): Promise<void> {
-    // Only clear the sensitive key material; keep sessionId and address
-    // so the wallet can be recovered via OTP (which returns userShard)
     await this.keyStore.remove('clientShare1');
+    await this.keyStore.remove('sessionId');
+    await this.keyStore.remove('address');
+    await this.keyStore.remove('chainId');
+    this._address = null;
+    this._sessionId = null;
     this._clientShare = null;
     this._initialized = false;
   }
