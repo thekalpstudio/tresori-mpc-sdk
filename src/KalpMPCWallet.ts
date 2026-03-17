@@ -429,6 +429,11 @@ export class KalpMPCWallet {
       this._clientShare = result.userShard || await this.keyStore.get('clientShare1');
       this._initialized = !!(this._clientShare && this._sessionId && this._address);
 
+      // If sessionId is missing (e.g. cleared storage), re-run DKG to establish a new signing session
+      if (!this._initialized) {
+        return this.createWallet(email);
+      }
+
       return {
         address,
         sessionId: this._sessionId || '',

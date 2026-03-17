@@ -49,8 +49,8 @@ export default function App() {
     // Re-init to ensure the SDK instance has loaded keys from storage
     if (walletRef.current) {
       await walletRef.current.init();
+      setConnected(walletRef.current.isInitialized);
     }
-    setConnected(true);
   }, []);
 
   const handleDisconnect = useCallback(async () => {
