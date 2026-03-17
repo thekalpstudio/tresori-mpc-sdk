@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { KalpMPCWallet } from '@kalpstudio/kalp-mpc-sdk';
+import { KalpMPCWallet } from '@kalp_studio/tresori-mpc-sdk';
 import { CreateWallet } from './components/CreateWallet';
 import { SendToken } from './components/SendToken';
 import { GaslessTransfer } from './components/GaslessTransfer';

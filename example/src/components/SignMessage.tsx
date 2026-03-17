@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
-import type { KalpMPCWallet } from '@kalpstudio/kalp-mpc-sdk';
+import type { KalpMPCWallet } from '@kalp_studio/tresori-mpc-sdk';
 
 interface Props {
   wallet: KalpMPCWallet;

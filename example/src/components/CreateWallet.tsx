@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { KalpMPCWallet } from '@kalpstudio/kalp-mpc-sdk';
+import type { KalpMPCWallet } from '@kalp_studio/tresori-mpc-sdk';
 
 interface Props {
   wallet: KalpMPCWallet;

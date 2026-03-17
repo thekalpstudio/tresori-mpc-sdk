@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { KalpMPCWallet } from '@kalpstudio/kalp-mpc-sdk';
+import type { KalpMPCWallet } from '@kalp_studio/tresori-mpc-sdk';
 import {
   getIdentityContracts,
   IDENTITY_REGISTRY_ABI,
