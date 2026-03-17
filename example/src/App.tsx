@@ -45,7 +45,11 @@ export default function App() {
     });
   }, [apiKey, chainId, rpcUrl, baseUrl]);
 
-  const handleWalletCreated = useCallback(() => {
+  const handleWalletCreated = useCallback(async () => {
+    // Re-init to ensure the SDK instance has loaded keys from storage
+    if (walletRef.current) {
+      await walletRef.current.init();
+    }
     setConnected(true);
   }, []);
 
@@ -53,7 +57,10 @@ export default function App() {
     if (walletRef.current) {
       await walletRef.current.disconnect();
     }
+    walletRef.current = null;
+    setWallet(null);
     setConnected(false);
+    setActiveTab('wallet');
   }, []);
 
   const chains = [
