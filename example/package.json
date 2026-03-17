@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "serve dist -s -l tcp://0.0.0.0:${PORT:-3000}"
   },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "ethers": "^5.7.2",
-    "@kalp_studio/tresori-mpc-sdk": "file:.."
+    "@kalp_studio/tresori-mpc-sdk": "^1.0.4",
+    "serve": "^14.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.0",
