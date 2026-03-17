@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+
+# Example app build artifacts
+example/node_modules/
+example/dist/
+example/.vite/
+
+# Identity contracts (separate repo)
+example/onchain-identity-kyc-contracts-main/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local

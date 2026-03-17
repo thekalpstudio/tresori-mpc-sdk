@@ -1,0 +1,47 @@
+{
+  "name": "@kalpstudio/kalp-mpc-sdk",
+  "version": "1.0.0",
+  "description": "Kalp MPC Wallet SDK - Sign and execute blockchain transactions using Multi-Party Computation (MPC) threshold signatures",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "mpc",
+    "wallet",
+    "blockchain",
+    "ethereum",
+    "threshold-signature",
+    "gasless",
+    "meta-transaction",
+    "erc-4337",
+    "kalp"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^5.7.2"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  },
+  "peerDependencies": {
+    "ethers": "^5.7.0"
+  }
+}
