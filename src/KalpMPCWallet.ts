@@ -418,12 +418,12 @@ export class KalpMPCWallet {
     if (walletAddress) {
       // Look for sessionId at multiple paths and field names
       const sessionId =
-        result?.sessionId || result?.mpc_session_id || result?.session_id ||
-        parentResult?.sessionId || parentResult?.mpc_session_id || parentResult?.session_id;
-      // Look for userShard/clientShare at multiple paths
+        result?.mpc_session_id || result?.recoverySessionId || result?.sessionId || result?.session_id ||
+        parentResult?.mpc_session_id || parentResult?.recoverySessionId || parentResult?.sessionId;
+      // Look for clientShare at multiple paths and field names
       const userShard =
-        result?.userShard || result?.user_shard || result?.clientShare1 ||
-        parentResult?.userShard || parentResult?.user_shard;
+        result?.newClientShare || result?.userShard || result?.clientShare1 || result?.user_shard ||
+        parentResult?.newClientShare || parentResult?.userShard;
 
       // Store wallet details
       await this.keyStore.set('address', walletAddress);
