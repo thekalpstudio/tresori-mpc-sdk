@@ -1,6 +1,6 @@
 {
   "name": "@kalp_studio/kalp-mpc-sdk",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Kalp MPC Wallet SDK - Sign and execute blockchain transactions using Multi-Party Computation (MPC) threshold signatures",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

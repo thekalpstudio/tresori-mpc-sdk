@@ -251,7 +251,7 @@ Built-in options:
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌──────────────┐
-│  Client App  │────▶│  Kalp MPC SDK │────▶│  Kalp Server  │
+│  Client App  │────▶│  Kalp MPC SDK │────▶│  Secure TEE   │
 │             │     │              │     │  (Share #2)   │
 │             │     │  Share #1    │     │              │
 └─────────────┘     └──────┬───────┘     └──────┬───────┘
