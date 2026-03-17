@@ -1,4 +1,4 @@
-# @kalp_studio/kalp-mpc-sdk
+# @kalp_studio/tresori-mpc-sdk
 
 A TypeScript SDK for creating and managing MPC (Multi-Party Computation) wallets with 2-of-3 threshold ECDSA signatures. Sign and execute blockchain transactions without exposing private keys.
 
@@ -16,7 +16,7 @@ A TypeScript SDK for creating and managing MPC (Multi-Party Computation) wallets
 ## Installation
 
 ```bash
-npm install @kalp_studio/kalp-mpc-sdk
+npm install @kalp_studio/tresori-mpc-sdk
 ```
 
 **Peer dependency:**
@@ -28,7 +28,7 @@ npm install ethers@^5.7.0
 ## Quick Start
 
 ```typescript
-import { KalpMPCWallet } from '@kalp_studio/kalp-mpc-sdk';
+import { KalpMPCWallet } from '@kalp_studio/tresori-mpc-sdk';
 
 const wallet = new KalpMPCWallet({
   apiKey: 'YOUR_API_KEY',
@@ -228,7 +228,7 @@ const relayer = wallet.getRelayerAddress();                        // Relayer co
 Implement the `KeyStore` interface for custom key storage:
 
 ```typescript
-import { KalpMPCWallet, KeyStore } from '@kalp_studio/kalp-mpc-sdk';
+import { KalpMPCWallet, KeyStore } from '@kalp_studio/tresori-mpc-sdk';
 
 class MySecureStore implements KeyStore {
   async get(key: string): Promise<string | null> { /* ... */ }
